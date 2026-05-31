@@ -1,0 +1,12 @@
+.env
+credentials.json
+token.json
+config.toml
+.claude/
+logs/
+*.log
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
