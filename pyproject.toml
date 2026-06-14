@@ -1,0 +1,21 @@
+[project]
+name = "daily-lookback"
+version = "0.6.0"
+description = "Local Ollama + Google-powered Obsidian daily note orchestrator"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-api-python-client>=2.197.0",
+    "google-auth-httplib2>=0.4.0",
+    "google-auth-oauthlib>=1.4.0",
+]
+
+[project.scripts]
+lookback = "lookback:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,45 @@
+# Copy to config.toml (gitignored) and edit paths for your machine.
+# Env vars override: DAILY_VAULT_DIR, DAILY_TEMPLATE_PATH, OLLAMA_MODEL, OLLAMA_URL
+
+[daily]
+vault_daily_dir = "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/pbrain/Daily"
+template_path = "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/pbrain/Templates/Daily Note.md"
+
+[ollama]
+model = "gemma3"
+url = "http://localhost:11434/api/generate"
+tags_url = "http://localhost:11434/api/tags"
+ready_timeout = 120
+max_retries = 3
+# Coach prompt (5-day digest + calendar/email context) needs >8192 tokens;
+# overflow silently truncates the system prompt and breaks the JSON plan.
+num_ctx = 16384
+
+[calendar]
+lookback_days = 14
+lookahead_days = 7
+
+[gmail]
+lookback_days = 14
+
+# Local Messages app integration (needs Full Disk Access — see docs/IMESSAGE.md).
+[imessage]
+enabled = false
+lookback_days = 3
+allowlist = []   # contact names/handles to include; empty = everyone
+denylist = []    # contact names/handles to always skip
+
+# Dead-man's-switch ping (free check at healthchecks.io); empty = disabled.
+[heartbeat]
+url = ""
+
+# --catch-up behavior when the Mac was off/asleep (see docs/RELIABILITY.md).
+[catchup]
+max_backfill_days = 7
+backfill_mode = "stub"   # "stub" = template-only notes for missed days; "full" = whole pipeline
+
+[coach]
+nudge_after_days = 3     # nudge about tasks carried over this many days
+weekly_enabled = true    # Sunday weekly reflection section
+
+# Google: place credentials.json in project root; run: uv run python google_auth.py
