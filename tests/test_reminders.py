@@ -32,7 +32,7 @@ BOA_CARD_1 = {
     "from": "onlinebanking@ealerts.bankofamerica.com",
     "subject": "Your credit card statement is available",
     "snippet": "Your credit card statement is available Account Everyday Rewards Visa "
-    "Signature - 1111 Statement Date May 15, 2026 Total Minimum Payment Due $118.00 "
+    "Signature - 1111 Statement Date May 15, 2026 Total Minimum Payment Due $25.00 "
     "Statement Balance $1234.56 VIEW STATEMENT",
 }
 BOA_CARD_2 = {
@@ -40,7 +40,7 @@ BOA_CARD_2 = {
     "subject": "Your credit card statement is available",
     "snippet": "Your credit card statement is available Account Cash Back Rewards "
     "Visa Signature - 2222 Statement Date May 15, 2026 Total Minimum Payment Due $35.00 "
-    "Statement Balance $2500.00 VIEW STATEMENT",
+    "Statement Balance $500.00 VIEW STATEMENT",
 }
 
 
@@ -72,7 +72,7 @@ def test_real_credit_card_statement_is_a_bill() -> None:
 
 def test_extracts_balance_minimum_and_account_tail() -> None:
     assert R.extract_amount(BOA_CARD_1["snippet"]) == "$1234.56"
-    assert R.extract_minimum(BOA_CARD_1["snippet"]) == "$118.00"
+    assert R.extract_minimum(BOA_CARD_1["snippet"]) == "$25.00"
     tail = R.extract_account_tail(BOA_CARD_1["subject"], BOA_CARD_1["snippet"], "")
     assert tail == "1111"
 
@@ -96,11 +96,11 @@ def test_two_cards_from_one_issuer_stay_separate_with_amounts() -> None:
     assert len(tasks) == 2
     joined = "\n".join(tasks)
     assert "1111" in joined and "2222" in joined
-    assert "$1234.56" in joined and "$2500.00" in joined
-    assert "min $118.00" in joined and "min $35.00" in joined
+    assert "$1234.56" in joined and "$500.00" in joined
+    assert "min $25.00" in joined and "min $35.00" in joined
 
 
 def test_render_line_shows_balance_and_min() -> None:
     line = R._render_mail_line(_as_bill(BOA_CARD_1))
-    assert "$1234.56" in line and "min $118.00" in line
+    assert "$1234.56" in line and "min $25.00" in line
     assert "…1111" in line

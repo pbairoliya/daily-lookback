@@ -109,6 +109,9 @@ IMESSAGE_DENYLIST: list[str] = _env_list(
 IMESSAGE_CONTACTS: dict[str, str] = {
     str(k): str(v) for k, v in dict(_imessage.get("contacts", {})).items()
 }
+# One line about who these people are and what you'd hate to miss. Steers the
+# extraction prompt; kept in config so no personal detail lives in the source.
+IMESSAGE_FOCUS: str = os.environ.get("IMESSAGE_FOCUS", str(_imessage.get("focus", "")))
 
 # Dead-man's-switch ping URL (e.g. https://hc-ping.com/<uuid>); empty = off.
 HEARTBEAT_URL: str = os.environ.get("HEARTBEAT_URL", _heartbeat.get("url", ""))

@@ -865,13 +865,13 @@ def is_trip_prep_task(text: str) -> bool:
 
 def extract_minimum(text: str) -> str:
     """The minimum payment, returned as '$X' (separate from the full balance so a
-    card line can show both: '$1,234.56 · min $118.00')."""
+    card line can show both: '$1,234.56 · min $25.00')."""
     m = _DUE_AMOUNT_RES[1].search(text)
     return "$" + m.group(1) if m else ""
 
 
 # Last 4-5 digits identifying WHICH card/account, so two cards from the same issuer
-# (Premium Rewards …1111 vs Customized Cash …2222) never collapse into one line.
+# (two cards from the same issuer, e.g. …1111 vs …2222) never collapse into one line.
 _ACCOUNT_TAIL_RES = [
     re.compile(r"(?:ending(?:\s*in)?|account ending|acct\.?)\D{0,8}(\d{4,5})\b", re.I),
     re.compile(r"(?:[-x*#•·]|\bending\b)\s*(\d{4,5})\b", re.I),

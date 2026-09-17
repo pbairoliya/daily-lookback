@@ -29,6 +29,16 @@ lookback_days = 3
 allowlist = []   # contact names/handles to include; empty = everyone
 denylist = []    # contact names/handles to always skip
 
+# One short line about who these people are and what you would hate to miss.
+# Steers the extraction prompt. Leave empty for a generic one.
+focus = ""       # e.g. "anything about Mom's health, appointments, or medication"
+
+# Display labels that replace raw phone numbers in the LLM payload and the note.
+# Key = any digit-only fragment of the handle, value = what to call them.
+[imessage.contacts]
+# "5551234567" = "Mom"
+# "5559876543" = "Sam (brother)"
+
 # Dead-man's-switch ping (free check at healthchecks.io); empty = disabled.
 [heartbeat]
 url = ""

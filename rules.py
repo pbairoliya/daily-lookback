@@ -396,7 +396,7 @@ _BILL_MONTH_DATE = re.compile(
 
 def bill_payee_core(s: str) -> str | None:
     """Coarse payee identity, card last-4 dropped: 'Pay credit card — Bank of
-    America …2222 ($2,500, due Jun 12)' -> 'bank of america'. None if not a bill."""
+    America …2222 ($500, due Jun 12)' -> 'bank of america'. None if not a bill."""
     bk = bill_key(s)
     if not bk:
         return None

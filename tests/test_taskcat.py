@@ -58,11 +58,11 @@ def test_dedup_by_key_merges_checked() -> None:
 
 def test_required_forced_in_and_canonical() -> None:
     # A required bill with a fresh amount overrides a stale carried copy.
-    stale = "Pay credit card — Amex …1111 ($800.00, due Jul 12)"
-    fresh = "Pay credit card — Amex …1111 ($814.69, min $35.00, due Jul 12)"
+    stale = "Pay credit card — Amex …1111 ($200.00, due Jul 12)"
+    fresh = "Pay credit card — Amex …1111 ($214.69, min $35.00, due Jul 12)"
     out = render_grouped([(stale, False)], required=[fresh])
     pay_lines = [l for l in out if l.startswith("- [")]
-    assert any("814.69" in l for l in pay_lines)
+    assert any("214.69" in l for l in pay_lines)
     assert not any("800.00" in l for l in pay_lines)
 
 

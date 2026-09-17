@@ -30,6 +30,7 @@ from config import (
     IMESSAGE_CONTACTS,
     IMESSAGE_DENYLIST,
     IMESSAGE_ENABLED,
+    IMESSAGE_FOCUS,
     IMESSAGE_LOOKBACK_DAYS,
     OLLAMA_NUM_CTX,
 )
@@ -58,36 +59,56 @@ _SIGNAL_RES = [re.compile(p, re.IGNORECASE) for p in (
     r"https?://",  # shared links (articles, listings, docs) — surface them
 )]
 
-EXTRACT_PROMPT = """You help the user keep up with close family. These messages are ONLY with:
-- Alex Rivera, who helps look after the user's Dad (Chris) and relays news about him
-- Chris Rivera, the user's Dad
-- Sam Rivera, the user's sister (Sam)
-Lines tagged "me" are the user.
+# The roster and the "what would I hate to miss" steer both come from config, so
+# no real names live in this repo. See [imessage.contacts] and [imessage].focus.
+_PROMPT_TEMPLATE = """You help the user keep up with the people closest to them.
+{roster}Lines tagged "me" are the user.
 
-Your job is to surface what the user might MISS — above all anything about Dad
-(Chris): health, appointments, medication, mood, meals, money, visits, anything
-Alex or Sam flag. Be precise; do not invent details that aren't in the messages.
+Your job is to surface what the user might MISS.{focus} Be precise; do not invent
+details that aren't in the messages.
 
 Output STRICT JSON ONLY:
-{"tasks": [{"text": string, "who": string}],
- "events": [{"text": string, "date": "YYYY-MM-DD or empty string"}],
- "links": [{"url": string, "why": string}],
- "themes": [string]}
+{{"tasks": [{{"text": string, "who": string}}],
+ "events": [{{"text": string, "date": "YYYY-MM-DD or empty string"}}],
+ "links": [{{"url": string, "why": string}}],
+ "themes": [string]}}
 
 Rules:
-- tasks: concrete things the user should DO or follow up on (call Dad's doctor,
-  refill the prescription, send Sam the photos). "who" = who it concerns
-  (Dad / Alex / Sam). Max 5. Skip small talk.
-- events: appointments / plans / visits with a date — especially Dad's. Max 5.
+- tasks: concrete things the user should DO or follow up on (make the call, send
+  the photos, refill the prescription). "who" = who it concerns. Max 5. Skip
+  small talk.
+- events: appointments / plans / visits with a date. Max 5.
 - links: useful URLs someone shared (verbatim) with a short why. Max 3. Skip
   tracking/verification links and bare image URLs.
-- themes: 2-4 short notes on how Dad and family are doing, so the user stays
-  aware ("Alex says Dad's appetite is low", "Sam visiting this weekend").
+- themes: 2-4 short notes on how these people are doing, so the user stays aware.
 - Empty arrays are fine. No commentary, JSON only."""
 
 
+def build_extract_prompt(
+    contacts: dict[str, str] | None = None, focus: str = ""
+) -> str:
+    """The extraction system prompt, personalised from config.
+
+    `contacts` maps handle fragments to display labels; only the labels are used,
+    so the roster tells the model who it is reading without this file ever
+    knowing. `focus` is the user's own one-liner about what matters most.
+    """
+    labels = list(dict.fromkeys((contacts or {}).values()))
+    roster = ""
+    if labels:
+        roster = "These messages are ONLY with:\n" + "".join(f"- {l}\n" for l in labels)
+    focus = focus.strip()
+    if focus and focus[-1] not in ".!?":
+        focus += "."
+    focus_line = f" Above all: {focus}" if focus else ""
+    return _PROMPT_TEMPLATE.format(roster=roster, focus=focus_line)
+
+
+EXTRACT_PROMPT = build_extract_prompt(IMESSAGE_CONTACTS, IMESSAGE_FOCUS)
+
+
 def contact_label(row: dict) -> str:
-    """Friendly label for a message's sender ('Alex', 'Dad', 'Sam'), matched on
+    """Friendly label for a message's sender (e.g. 'Mom', 'Sam'), matched on
     the digits of the stored handle. Falls back to the chat name, never a number."""
     if row.get("is_from_me"):
         return "me"
