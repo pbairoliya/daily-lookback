@@ -107,6 +107,25 @@ local Ollama, nothing leaves the machine. Enable `[imessage]` in
 `config.toml` after granting Full Disk Access; see
 [docs/IMESSAGE.md](docs/IMESSAGE.md).
 
+**Grant Full Disk Access to the process that actually runs the job.** iMessage
+history lives in `~/Library/Messages/chat.db`, behind macOS privacy controls. If
+the grant is missing the source degrades to empty rather than failing the run, so
+the symptom is a silently absent section, not an error.
+
+- Running by hand: grant **Terminal** (or iTerm).
+- Running under launchd: grant **the Python binary itself** — `python3 -c 'import
+  sys; print(sys.executable)'` — and add exactly that path. Granting Terminal does
+  *not* cover a launchd-spawned process.
+
+Verify independently of this tool:
+
+```bash
+sqlite3 ~/Library/Messages/chat.db 'select count(*) from message;'
+```
+
+A number means the reader will work; `unable to open database file` means the
+grant has not taken effect (a running daemon needs a restart).
+
 ## Project layout
 
 | File | Role |
